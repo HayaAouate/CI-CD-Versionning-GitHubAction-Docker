@@ -1,5 +1,7 @@
 # Rapport d'épreuve EC06 - CI/CD et Versioning
 
+![CI/CD Pipeline](https://github.com/HayaAouate/CI-CD-Versionning-GitHubAction-Docker/actions/workflows/ci.yml/badge.svg)
+
 **Projet :** SkillHub API
 **Lien GitHub :** https://github.com/HayaAouate/CI-CD-Versionning-GitHubAction-Docker
 

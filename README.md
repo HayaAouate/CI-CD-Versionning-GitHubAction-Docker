@@ -56,9 +56,30 @@ flowchart TD
 - **GitHub Secrets** : Lors du déploiement réel ou des push vers des registres Docker, les identifiants sont stockés de manière chiffrée dans les **GitHub Secrets**.
 - **Injection** : Ces secrets seront injectés via la syntaxe `${{ secrets.NOM_DU_SECRET }}` directement dans les variables d'environnement des jobs.
 
-## 4. Instructions et limites
+## 4. Retours d'expérience et bonus mis en place (Compte Rendu)
 
-### Lancer le projet en local
+### 🐛 Problèmes rencontrés et résolus
+- Lors de la mise en place de la protection de la branche `main`, l'option cachée *Require approvals* était cochée par défaut, empêchant la fusion des Pull Requests en étant seul sur le projet. L'option a été décochée dans les règles de la branche pour autoriser l'auto-fusion une fois que la CI est au vert.
+- Le nom de l'image Docker a dû être forcé dans `docker-compose.yml` (`image: ec06_app-app:latest`) pour que les étapes de tag et de scan (Trivy) trouvent bien l'image sur le runner GitHub.
+
+### 🚀 Bonus et sécurité (Piliers validés)
+- **Historique des pipelines CI :** L'intégration continue s'exécute à chaque push et valide le lint, les tests et le build Docker.
+<br>![Historique CI](docs/captures-ci/ci_2.png)
+- **Succès du Build Docker :** L'image Docker se construit parfaitement sur le runner GitHub.
+<br>![CI Succès Build](docs/captures-ci/ci_succeed_1.png)
+- **Scan de vulnérabilités (Trivy) :** Ajouté dans le job `build` pour analyser l'image Docker fraîchement construite (`os,library`). Le scan trouve et affiche les vulnérabilités.
+<br>![Trivy Scan](docs/captures-ci/traffik_fix.png)
+- **Protection de branche :** La branche `main` est configurée avec des *Branch Rulesets* exigeant une Pull Request validée et des status checks (CI au vert) avant toute fusion.
+<br>![Protection Branche Main](docs/captures-ci/protected_main.png)
+- **Déclencheurs multiples (PR Bonus) :** Le pipeline se déclenche spécifiquement sur `pull_request` (vers `main`), exigeant que les tests passent avant de pouvoir fusionner.
+<br>![Pull Request Bonus](docs/captures-ci/pipeline_pr_bonnus.png)
+- **Gestion des Secrets :** Les identifiants virtuels (ex: Docker) ont été stockés en toute sécurité dans les variables GitHub (Secrets).
+<br>![GitHub Secrets](docs/captures-ci/secrets_github.png)
+- **Permissions granulaires :** Ajout de `permissions: contents: read` au workflow pour respecter le principe du moindre privilège.
+- **Badge d'état :** Un badge dynamique a été ajouté en haut de ce README pour suivre le statut de la CI en temps réel.
+
+## 5. Instructions de lancement local
+
 1. Cloner le dépôt.
 2. S'assurer d'avoir copié `.env.dist` en `.env`.
 3. Exécuter la commande :
@@ -66,9 +87,3 @@ flowchart TD
    docker compose up --build
    ```
 4. L'application est disponible sur http://localhost:3000.
-
-### Limites et améliorations futures
-- **Limites actuelles** : Le déploiement (job `deploy`) n'est que simulé via un script `deploy.sh`.
-- **Améliorations envisageables** : 
-  - Ajout d'un système de scan de vulnérabilités (ex: Trivy) sur l'image Docker finale.
-  - Mise en cache automatique de `node_modules` dans GitHub Actions pour accélérer la CI.

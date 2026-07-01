@@ -1,0 +1,62 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  quality:
+    name: Lint and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup environment
+        run: cp .env.dist .env
+      
+      - name: Run linter in Docker
+        run: docker compose run --rm app npm run lint
+      
+      - name: Run tests in Docker
+        run: docker compose run --rm app npm test
+
+  build:
+    name: Build Docker Image
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Build Docker Image
+        run: docker compose build
+      
+      - name: Tag as latest (if main)
+        if: github.ref == 'refs/heads/main'
+        run: docker tag ec06_app-app:latest my-app:${{ github.sha }}
+
+  deploy:
+    name: Deploy to Production
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Make deploy script executable
+        run: chmod +x ./deploy.sh
+        
+      - name: Run simulate deploy
+        run: ./deploy.sh
+      
+      - name: Upload deploy.log
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-log
+          path: deploy.log

@@ -61,6 +61,7 @@ flowchart TD
 ### 🐛 Problèmes rencontrés et résolus
 - Lors de la mise en place de la protection de la branche `main`, l'option cachée *Require approvals* était cochée par défaut, empêchant la fusion des Pull Requests en étant seul sur le projet. L'option a été décochée dans les règles de la branche pour autoriser l'auto-fusion une fois que la CI est au vert.
 - Le nom de l'image Docker a dû être forcé dans `docker-compose.yml` (`image: ec06_app-app:latest`) pour que les étapes de tag et de scan (Trivy) trouvent bien l'image sur le runner GitHub.
+- **Anecdote de sécurité :** Lors de la rédaction finale de ce README, une tentative de `git push origin main` a été **rejetée** par GitHub (`GH013: Repository rule violations`). Cela a prouvé de manière concrète que la règle "Require a pull request before merging" est bien active et protège la branche de production contre tout ajout direct imprévu ! 🛡️
 
 ### 🚀 Bonus et sécurité (Piliers validés)
 - **Historique des pipelines CI :** L'intégration continue s'exécute à chaque push et valide le lint, les tests et le build Docker.

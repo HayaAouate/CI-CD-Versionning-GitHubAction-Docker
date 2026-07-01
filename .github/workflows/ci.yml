@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   quality:
     name: Lint and Test
@@ -35,6 +38,15 @@ jobs:
       
       - name: Build Docker Image
         run: docker compose build
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'ec06_app-app:latest'
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
       
       - name: Tag as latest (if main)
         if: github.ref == 'refs/heads/main'
